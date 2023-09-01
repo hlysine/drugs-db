@@ -48,7 +48,7 @@ export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
         {(drug.drugFinished ? '' : 'UNFINISHED • ') +
           nameProductType(drug.productTypeName)}
       </div>
-      <div className="card-body">
+      <div className="card-body !py-5">
         <div className="card-title !mb-0">
           {drug.proprietaryName}
           <span className="opacity-60 overflow-hidden whitespace-nowrap text-ellipsis">

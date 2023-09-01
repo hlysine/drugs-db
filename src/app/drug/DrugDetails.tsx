@@ -2,7 +2,69 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { getDrug } from './api';
-import { FullDrugInfo } from '../../drug-types';
+import { FullDrugInfo, nameProductType } from '../../drug-types';
+
+function getBannerByType(drug: FullDrugInfo) {
+  switch (drug.productTypeName) {
+    case 'HUMAN OTC DRUG':
+      return (
+        <div
+          className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-primary`}
+        >
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+            {drug.labelerName}
+          </div>
+          {drug.deaSchedule ? (
+            <div className="badge">DEA Schedule {drug.deaSchedule}</div>
+          ) : null}
+          {drug.drugFinished ? null : (
+            <div className="badge badge-ghost">UNFINISHED DRUG</div>
+          )}
+          <div className={`py-2 px-4 mx-4 bg-primary text-primary-content`}>
+            {nameProductType(drug.productTypeName)}
+          </div>
+        </div>
+      );
+    case 'HUMAN PRESCRIPTION DRUG':
+      return (
+        <div
+          className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-secondary`}
+        >
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+            {drug.labelerName}
+          </div>
+          {drug.deaSchedule ? (
+            <div className="badge">DEA Schedule {drug.deaSchedule}</div>
+          ) : null}
+          {drug.drugFinished ? null : (
+            <div className="badge badge-ghost">UNFINISHED DRUG</div>
+          )}
+          <div className={`py-2 px-4 mx-4 bg-secondary text-secondary-content`}>
+            {nameProductType(drug.productTypeName)}
+          </div>
+        </div>
+      );
+    default:
+      return (
+        <div
+          className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-accent`}
+        >
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+            {drug.labelerName}
+          </div>
+          {drug.deaSchedule ? (
+            <div className="badge">DEA Schedule {drug.deaSchedule}</div>
+          ) : null}
+          {drug.drugFinished ? null : (
+            <div className="badge badge-ghost">UNFINISHED DRUG</div>
+          )}
+          <div className={`py-2 px-4 mx-4 bg-accent text-accent-content`}>
+            {nameProductType(drug.productTypeName)}
+          </div>
+        </div>
+      );
+  }
+}
 
 export default function DrugDetails(): JSX.Element {
   const params = useParams();
@@ -15,7 +77,7 @@ export default function DrugDetails(): JSX.Element {
     })();
   }, [params.id]);
   return (
-    <div className="p-8 flex flex-col gap-2">
+    <div className="p-8 flex flex-col gap-2 items-center">
       <Helmet>
         <title>Drug Info - drugs-db</title>
       </Helmet>
@@ -34,7 +96,28 @@ export default function DrugDetails(): JSX.Element {
         </ul>
       </div>
       {drug ? (
-        <pre>{JSON.stringify(drug, undefined, 2)}</pre>
+        <div
+          className={`flex flex-col gap-4 w-full max-w-6xl pt-4 rounded-t-lg ${
+            drug.drugFinished ? '' : 'cross-out'
+          }`}
+        >
+          <h1 className="text-4xl lg:text-6xl">
+            {drug.proprietaryName}{' '}
+            <span className="opacity-60 text-3xl lg:text-5xl">
+              {drug.proprietaryNameSuffix}
+            </span>
+          </h1>
+          <div className="text-2xl text-accent">
+            {drug.nonProprietaryNames.join(', ')}
+          </div>
+          <div className="first-letter:uppercase lowercase">
+            <span className="text-accent-content">
+              {drug.routes.join('/')}{' '}
+            </span>
+            {drug.dosageForms.join(', ')}
+          </div>
+          {getBannerByType(drug)}
+        </div>
       ) : (
         <span className="loading loading-dots loading-lg"></span>
       )}
