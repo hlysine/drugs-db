@@ -60,7 +60,9 @@ router.get(
         return { obj: entry.obj, score: entry.score };
       });
     }
-    console.log(`Search for "${q}" took ${performance.now() - time}ms`);
+    console.log(
+      `Search for "${q}" took ${(performance.now() - time).toPrecision(4)}ms`
+    );
     const total = results.length;
     const sliced = results.slice(skip, skip + limit).map(r => {
       const { products: _, ...rest } = r.obj;

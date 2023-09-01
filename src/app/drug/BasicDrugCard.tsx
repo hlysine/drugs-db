@@ -1,39 +1,14 @@
 import React from 'react';
-import { BasicDrugInfo, nameProductType } from '../../drug-types';
+import {
+  BasicDrugInfo,
+  getBadgeByType,
+  getNameByType,
+  nameProductType,
+} from '../../drug-types';
 
 export interface BasicDrugCardProps {
   drug: BasicDrugInfo;
   onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-}
-
-function getBadgeByType(type: string) {
-  switch (type) {
-    case 'MoA':
-      return 'badge-primary';
-    case 'PE':
-      return 'badge-accent';
-    case 'Chemical/Ingredient':
-      return 'badge-ghost';
-    case 'EPC':
-      return 'badge-secondary';
-    default:
-      return '';
-  }
-}
-
-function getNameByType(type: string) {
-  switch (type) {
-    case 'MoA':
-      return 'Mechanism';
-    case 'PE':
-      return 'Effect';
-    case 'Chemical/Ingredient':
-      return 'Chemical';
-    case 'EPC':
-      return 'Class';
-    default:
-      return type;
-  }
 }
 
 export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
@@ -65,11 +40,14 @@ export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
             )
             .slice(0, 3)
             .map(pharmClass => (
-              <div className="flex gap-2 items-center">
+              <div
+                className="flex gap-2 items-center"
+                key={pharmClass.className + pharmClass.classType}
+              >
                 <div
                   className={`badge ${getBadgeByType(pharmClass.classType)}`}
                 >
-                  {getNameByType(pharmClass.classType)}
+                  {getNameByType(pharmClass.classType, false)}
                 </div>
                 <div>{pharmClass.className}</div>
               </div>

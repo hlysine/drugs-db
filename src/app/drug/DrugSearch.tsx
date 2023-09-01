@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { SearchResult } from '../../drug-types';
 import debounce from 'lodash/debounce';
@@ -7,8 +7,9 @@ import { searchDrugs } from './api';
 import BasicDrugCard from './BasicDrugCard';
 
 export default function DrugSearch(): JSX.Element {
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [results, setResults] = useState<SearchResult>();
   const [loading, setLoading] = useState(false);
   const requestId = useRef(0);
@@ -32,10 +33,14 @@ export default function DrugSearch(): JSX.Element {
   );
 
   useEffect(() => {
-    if (query) {
+    if (searchParams.has('q')) {
       requestId.current++;
-      search(query, requestId.current);
+      search(searchParams.get('q')!, requestId.current);
     }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setSearchParams({ q: query }, { replace: true });
   }, [query]);
 
   return (
@@ -72,7 +77,9 @@ export default function DrugSearch(): JSX.Element {
               <BasicDrugCard
                 key={result.drugId}
                 drug={result}
-                onClick={() => navigate('/drug/' + result.drugId)}
+                onClick={() =>
+                  navigate('/drug/' + result.drugId, { state: result })
+                }
               />
             ))}
           </div>

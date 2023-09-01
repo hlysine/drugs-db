@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { getDrug } from './api';
-import { FullDrugInfo, nameProductType } from '../../drug-types';
+import {
+  BasicDrugInfo,
+  FullDrugInfo,
+  getBadgeByType,
+  getNameByType,
+  nameMarketingCategory,
+  nameProductType,
+} from '../../drug-types';
 
-function getBannerByType(drug: FullDrugInfo) {
+function getBannerByType(drug: BasicDrugInfo) {
   switch (drug.productTypeName) {
     case 'HUMAN OTC DRUG':
       return (
         <div
           className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-primary`}
         >
-          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1 min-w-[50%]">
             {drug.labelerName}
           </div>
           {drug.deaSchedule ? (
@@ -30,7 +37,7 @@ function getBannerByType(drug: FullDrugInfo) {
         <div
           className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-secondary`}
         >
-          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1 min-w-[50%]">
             {drug.labelerName}
           </div>
           {drug.deaSchedule ? (
@@ -49,7 +56,7 @@ function getBannerByType(drug: FullDrugInfo) {
         <div
           className={`border-b-2 w-full flex justify-end flex-wrap items-center gap-4 border-accent`}
         >
-          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+          <div className="text-sm opacity-60 overflow-hidden whitespace-nowrap text-ellipsis flex-1 min-w-[50%]">
             {drug.labelerName}
           </div>
           {drug.deaSchedule ? (
@@ -68,8 +75,11 @@ function getBannerByType(drug: FullDrugInfo) {
 
 export default function DrugDetails(): JSX.Element {
   const params = useParams();
+  const location = useLocation();
 
-  const [drug, setDrug] = useState<FullDrugInfo>();
+  const [drug, setDrug] = useState<FullDrugInfo | BasicDrugInfo>(
+    location.state ?? undefined
+  );
 
   useEffect(() => {
     (async () => {
@@ -96,27 +106,107 @@ export default function DrugDetails(): JSX.Element {
         </ul>
       </div>
       {drug ? (
-        <div
-          className={`flex flex-col gap-4 w-full max-w-6xl pt-4 rounded-t-lg ${
-            drug.drugFinished ? '' : 'cross-out'
-          }`}
-        >
-          <h1 className="text-4xl lg:text-6xl">
-            {drug.proprietaryName}{' '}
-            <span className="opacity-60 text-3xl lg:text-5xl">
-              {drug.proprietaryNameSuffix}
-            </span>
-          </h1>
-          <div className="text-2xl text-accent">
-            {drug.nonProprietaryNames.join(', ')}
+        <div className="flex flex-col gap-4 w-full max-w-5xl">
+          <div
+            className={`flex flex-col gap-4 pt-4 rounded-t-lg ${
+              drug.drugFinished ? '' : 'cross-out'
+            }`}
+          >
+            <h1 className="text-4xl lg:text-6xl">
+              {drug.proprietaryName}{' '}
+              <span className="opacity-60 text-3xl lg:text-5xl">
+                {drug.proprietaryNameSuffix}
+              </span>
+            </h1>
+            <div className="text-2xl text-accent">
+              {drug.nonProprietaryNames.join(', ')}
+            </div>
+            <div className="first-letter:uppercase lowercase">
+              <span className="text-accent-content">
+                {drug.routes.join('/')}{' '}
+              </span>
+              {drug.dosageForms.join(', ')}
+            </div>
+            {getBannerByType(drug)}
           </div>
-          <div className="first-letter:uppercase lowercase">
-            <span className="text-accent-content">
-              {drug.routes.join('/')}{' '}
-            </span>
-            {drug.dosageForms.join(', ')}
+          <div className="flex flex-col gap-4">
+            {drug.pharmClasses
+              .sort((a, b) =>
+                a.classType === 'EPC' ? -1 : b.classType === 'EPC' ? 1 : 0
+              )
+              .map(pharmClass => (
+                <div
+                  className="flex flex-wrap flex-col sm:flex-row gap-2 md:items-center"
+                  key={pharmClass.className + pharmClass.classType}
+                >
+                  <div
+                    className={`badge ${getBadgeByType(pharmClass.classType)}`}
+                  >
+                    {getNameByType(pharmClass.classType, true)}
+                  </div>
+                  <div>{pharmClass.className}</div>
+                </div>
+              ))}
           </div>
-          {getBannerByType(drug)}
+          <div className="divider !mb-0">Available Products</div>
+          {'products' in drug ? (
+            drug.products.map(product => (
+              <div
+                key={product.productNdc}
+                className="card bg-neutral text-neutral-content rounded-md overflow-hidden"
+              >
+                <div className="flex flex-col">
+                  <div className="flex items-center p-4">
+                    <span className="flex-1 opacity-60">
+                      {new Date(
+                        product.startMarketingDate
+                      ).toLocaleDateString()}{' '}
+                      -{' '}
+                      {product.endMarketingDate
+                        ? new Date(
+                            product.endMarketingDate
+                          ).toLocaleDateString()
+                        : ''}
+                    </span>
+                    <span className="opacity-60">
+                      {nameMarketingCategory(product.marketingCategoryName)}
+                    </span>
+                  </div>
+                  <div className="p-4 pt-0 flex flex-col items-center w-full">
+                    {product.substances.map(substance => (
+                      <div
+                        key={substance.substanceName}
+                        className="flex flex-wrap gap-2 items-center border-b-2 border-neutral-focus mb-1 w-full max-w-3xl"
+                      >
+                        <span className="flex-1">
+                          {substance.substanceName}
+                        </span>
+                        <span className="font-bold text-lg">
+                          {substance.activeNumeratorStrength}
+                        </span>
+                        <span className="opacity-60">
+                          {substance.activeIngredUnit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-neutral-focus p-4">
+                    {product.packages.map(pkg => (
+                      <div key={pkg.ndcPackageCode} className="mb-2">
+                        {pkg.packageDescription.map((desc, idx) => (
+                          <div key={desc} style={{ marginLeft: idx * 20 }}>
+                            {desc}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <span className="loading loading-dots loading-lg"></span>
+          )}
         </div>
       ) : (
         <span className="loading loading-dots loading-lg"></span>

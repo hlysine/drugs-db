@@ -108,6 +108,76 @@ export interface BasicDrugInfo {
   deaSchedule: string | undefined;
 }
 
+export interface FullDrugInfo extends BasicDrugInfo {
+  /**
+   * Products of the drug
+   */
+  products: Product[];
+}
+
+export function nameMarketingCategory(category: string) {
+  switch (category) {
+    case 'ANADA':
+      return 'Approved Abbreviated Animal Drug';
+    case 'ANDA':
+      return 'Approved Abbreviated Drug';
+    case 'BLA':
+      return 'Approved Biologic License';
+    case 'BULK INGREDIENT':
+      return 'Bulk Ingredient';
+    case 'CONDITIONAL NADA':
+      return 'Conditional Animal Drug';
+    case 'EXPORT ONLY':
+      return 'Export Only';
+    case 'IND':
+      return 'Investigational Drug';
+    case 'NADA':
+      return 'Approved Animal Drug';
+    case 'NDA':
+      return 'Approved Drug';
+    case 'NDA AUTHORIZED GENERIC':
+      return 'Approved Drug (Generic)';
+    case 'OTC MONOGRAPH FINAL':
+      return 'OTC Drug Monograph (Final)';
+    case 'OTC MONOGRAPH NOT FINAL':
+      return 'OTC Drug Monograph (Not Final)';
+    case 'UNAPPROVED OTHER MARKETING CATEGORY':
+      return 'Unapproved Others';
+    default:
+      return category;
+  }
+}
+
+export function getBadgeByType(type: string) {
+  switch (type) {
+    case 'MoA':
+      return 'badge-primary';
+    case 'PE':
+      return 'badge-accent';
+    case 'Chemical/Ingredient':
+      return 'badge-ghost';
+    case 'EPC':
+      return 'badge-secondary';
+    default:
+      return '';
+  }
+}
+
+export function getNameByType(type: string, long: boolean) {
+  switch (type) {
+    case 'MoA':
+      return long ? 'Mechanism of action' : 'Mechanism';
+    case 'PE':
+      return long ? 'Physiologic Effect' : 'Effect';
+    case 'Chemical/Ingredient':
+      return long ? 'Chemical Structure' : 'Chemical';
+    case 'EPC':
+      return long ? 'Established Class' : 'Class';
+    default:
+      return type;
+  }
+}
+
 export function nameProductType(productType: string) {
   if (productType === 'HUMAN OTC DRUG') {
     return 'OTC';
@@ -116,13 +186,6 @@ export function nameProductType(productType: string) {
   } else {
     return productType;
   }
-}
-
-export interface FullDrugInfo extends BasicDrugInfo {
-  /**
-   * Products of the drug
-   */
-  products: Product[];
 }
 
 export interface SearchResult {
