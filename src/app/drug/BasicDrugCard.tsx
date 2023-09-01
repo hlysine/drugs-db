@@ -78,6 +78,9 @@ export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
         {drug.pharmClasses.length > 3 ? (
           <div className="text-xs">and {drug.pharmClasses.length - 3} more</div>
         ) : null}
+        <div className="text-sm first-letter:uppercase lowercase">
+          {drug.routes.join('/')} {drug.dosageForms.join(', ')}
+        </div>
         <div className="text-xs opacity-50 overflow-hidden whitespace-nowrap text-ellipsis">
           {drug.labelerName}
         </div>

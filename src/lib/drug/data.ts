@@ -214,6 +214,7 @@ export async function readDrugs(): Promise<void> {
     minMatchCharLength: 2,
     threshold: 0.3,
     ignoreLocation: true,
+    includeScore: true,
     keys: [
       'proprietaryName',
       'proprietaryNameSuffix',

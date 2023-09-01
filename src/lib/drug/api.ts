@@ -6,6 +6,11 @@ import { drugs, fuse } from './data';
 import { FullDrugInfo, SearchResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
 
+interface SearchEntry {
+  obj: FullDrugInfo;
+  score: number;
+}
+
 const router = express.Router();
 
 router.get(
@@ -35,12 +40,7 @@ router.get(
     }
     limit = Math.min(limit, 100);
     const time = performance.now();
-    let results: Readonly<
-      (
-        | { obj: FullDrugInfo; score: number }
-        | { item: FullDrugInfo; score?: number }
-      )[]
-    > = fuzzysort.go(q, drugs, {
+    let results: readonly SearchEntry[] = fuzzysort.go(q, drugs, {
       keys: [
         'proprietaryName',
         'proprietaryNameSuffix',
@@ -49,13 +49,21 @@ router.get(
         'formulae.substances.substanceName',
       ],
     });
-    if (!results[0] || (results[0].score ?? 0) < -1000) {
-      results = fuse.search(q);
+    if (!results[0] || results[0].score < -1000) {
+      results = fuse.search(q).map(entry => {
+        entry.score! *= Math.pow(0.95, entry.item.pharmClasses.length);
+        return { obj: entry.item, score: entry.score! };
+      });
+    } else {
+      results = results.map(entry => {
+        entry.score += entry.obj.pharmClasses.length;
+        return { obj: entry.obj, score: entry.score };
+      });
     }
     console.log(`Search for "${q}" took ${performance.now() - time}ms`);
     const total = results.length;
     const sliced = results.slice(skip, skip + limit).map(r => {
-      const { products: _, ...rest } = 'obj' in r ? r.obj : r.item;
+      const { products: _, ...rest } = r.obj;
       return rest;
     });
     res.status(200).json({

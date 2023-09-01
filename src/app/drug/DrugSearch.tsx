@@ -8,7 +8,7 @@ import BasicDrugCard from './BasicDrugCard';
 
 export default function DrugSearch(): JSX.Element {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('ZYPREXA'); // TODO: DEBUG
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult>();
   const [loading, setLoading] = useState(false);
   const requestId = useRef(0);
@@ -57,6 +57,7 @@ export default function DrugSearch(): JSX.Element {
       <input
         type="text"
         value={query}
+        autoFocus
         placeholder="Search for drugs"
         className={`input input-bordered w-full max-w-md ${
           loading ? 'animate-pulse' : ''
@@ -64,18 +65,21 @@ export default function DrugSearch(): JSX.Element {
         onChange={e => setQuery(e.target.value)}
       />
       {results ? (
-        <div className="flex flex-wrap gap-4 w-full justify-center items-start">
-          {results.items.map(result => (
-            <BasicDrugCard
-              key={result.drugId}
-              drug={result}
-              onClick={() => navigate('/drug/' + result.drugId)}
-            />
-          ))}
+        <div className="flex flex-col gap-2 items-center">
+          <div className="text-sm">{results.total} results found</div>
+          <div className="flex flex-wrap gap-4 w-full justify-center items-start">
+            {results.items.map(result => (
+              <BasicDrugCard
+                key={result.drugId}
+                drug={result}
+                onClick={() => navigate('/drug/' + result.drugId)}
+              />
+            ))}
+          </div>
         </div>
-      ) : (
+      ) : loading ? (
         <span className="loading loading-dots loading-lg"></span>
-      )}
+      ) : null}
     </div>
   );
 }
