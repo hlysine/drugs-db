@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { SearchResult } from '../../drug-types';
 import debounce from 'lodash/debounce';
@@ -7,6 +7,7 @@ import { searchDrugs } from './api';
 import BasicDrugCard from './BasicDrugCard';
 
 export default function DrugSearch(): JSX.Element {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('ZYPREXA'); // TODO: DEBUG
   const [results, setResults] = useState<SearchResult>();
   const [loading, setLoading] = useState(false);
@@ -62,12 +63,18 @@ export default function DrugSearch(): JSX.Element {
         }`}
         onChange={e => setQuery(e.target.value)}
       />
-      {results && (
-        <div className="flex flex-wrap gap-4 w-full justify-center items-center">
+      {results ? (
+        <div className="flex flex-wrap gap-4 w-full justify-center items-start">
           {results.items.map(result => (
-            <BasicDrugCard key={result.drugId} drug={result} />
+            <BasicDrugCard
+              key={result.drugId}
+              drug={result}
+              onClick={() => navigate('/drug/' + result.drugId)}
+            />
           ))}
         </div>
+      ) : (
+        <span className="loading loading-dots loading-lg"></span>
       )}
     </div>
   );

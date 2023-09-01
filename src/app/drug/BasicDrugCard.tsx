@@ -3,6 +3,7 @@ import { BasicDrugInfo, nameProductType } from '../../drug-types';
 
 export interface BasicDrugCardProps {
   drug: BasicDrugInfo;
+  onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 function getBadgeByType(type: string) {
@@ -35,12 +36,13 @@ function getNameByType(type: string) {
   }
 }
 
-export default function BasicDrugCard({ drug }: BasicDrugCardProps) {
+export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
   return (
     <div
-      className={`card card-compact w-96 shadow-md rounded-md overflow-hidden ${
+      className={`relative card card-compact w-96 shadow-md rounded-md overflow-hidden hover:bg-neutral-focus transition-colors ${
         drug.drugFinished ? 'bg-neutral' : 'bg-base-100 cross-out'
       }`}
+      onClick={onClick}
     >
       <div className="absolute top-0 right-0 text-xs bg-base-100 text-base-content px-2 py-1 rounded-bl-md">
         {(drug.drugFinished ? '' : 'UNFINISHED • ') +
@@ -61,6 +63,7 @@ export default function BasicDrugCard({ drug }: BasicDrugCardProps) {
             .sort((a, b) =>
               a.classType === 'EPC' ? -1 : b.classType === 'EPC' ? 1 : 0
             )
+            .slice(0, 3)
             .map(pharmClass => (
               <div className="flex gap-2 items-center">
                 <div
@@ -72,6 +75,9 @@ export default function BasicDrugCard({ drug }: BasicDrugCardProps) {
               </div>
             ))}
         </div>
+        {drug.pharmClasses.length > 3 ? (
+          <div className="text-xs">and {drug.pharmClasses.length - 3} more</div>
+        ) : null}
         <div className="text-xs opacity-50 overflow-hidden whitespace-nowrap text-ellipsis">
           {drug.labelerName}
         </div>
