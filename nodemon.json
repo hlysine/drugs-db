@@ -1,0 +1,5 @@
+{
+  "watch": ["src/drug-types.ts", "src/server.ts", "src/server/**"],
+  "ext": "js,jsx,ts,tsx,json",
+  "exec": "ts-node --esm --project tsconfig.server.json --experimental-specifier-resolution=node ./src/server"
+}
