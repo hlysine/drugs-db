@@ -56,7 +56,3 @@ export function wrap(
     }
   };
 }
-
-export function isEmpty(obj: string | null | undefined) {
-  return obj === null || obj === undefined || obj.trim() === '';
-}

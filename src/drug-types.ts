@@ -192,5 +192,10 @@ export interface SearchResult {
   total: number;
   limit: number;
   skip: number;
+  /**
+   * Indicates that the quality of the results is bad.
+   * Client may provide alternatives.
+   */
+  badSearch: boolean;
   items: BasicDrugInfo[];
 }

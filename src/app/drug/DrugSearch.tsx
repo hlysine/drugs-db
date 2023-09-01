@@ -5,6 +5,7 @@ import { SearchResult } from '../../drug-types';
 import debounce from 'lodash/debounce';
 import { searchDrugs } from './api';
 import BasicDrugCard from './BasicDrugCard';
+import BadSearchCard from './BadSearchCard';
 
 export default function DrugSearch(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,14 +34,20 @@ export default function DrugSearch(): JSX.Element {
   );
 
   useEffect(() => {
-    if (searchParams.has('q')) {
+    if (searchParams.has('q') || results) {
       requestId.current++;
-      search(searchParams.get('q')!, requestId.current);
+      search(searchParams.get('q') ?? '', requestId.current);
     }
   }, [searchParams]);
 
   useEffect(() => {
-    setSearchParams({ q: query }, { replace: true });
+    setSearchParams(
+      params => {
+        query ? params.set('q', query) : params.delete('q');
+        return params;
+      },
+      { replace: true }
+    );
   }, [query]);
 
   return (
@@ -73,6 +80,9 @@ export default function DrugSearch(): JSX.Element {
         <div className="flex flex-col gap-2 items-center">
           <div className="text-sm">{results.total} results found</div>
           <div className="flex flex-wrap gap-4 w-full justify-center items-start">
+            {results.badSearch ? (
+              <BadSearchCard key="google" query={query} />
+            ) : null}
             {results.items.map(result => (
               <BasicDrugCard
                 key={result.drugId}
@@ -86,7 +96,16 @@ export default function DrugSearch(): JSX.Element {
         </div>
       ) : loading ? (
         <span className="loading loading-dots loading-lg"></span>
-      ) : null}
+      ) : (
+        <div className="flex flex-col gap-4">
+          <h3 className="text-2xl">FDA Drug Search</h3>
+          <ul className="list-disc">
+            <li>You can search for drugs by name or class</li>
+            <li>This drug list may not be complete</li>
+            <li>All drug names follow US conventions</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

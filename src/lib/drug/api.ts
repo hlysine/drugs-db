@@ -5,6 +5,7 @@ import { badRequest } from '@hapi/boom';
 import { drugs, fuse } from './data';
 import { FullDrugInfo, SearchResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
+import isEmpty from 'lodash/isEmpty';
 
 interface SearchEntry {
   obj: FullDrugInfo;
@@ -38,8 +39,18 @@ router.get(
     if (Number.isNaN(skip) || skip < 0) {
       throw badRequest('Invalid skip');
     }
+    if (isEmpty(q)) {
+      return res.status(200).json({
+        total: 0,
+        items: [],
+        limit,
+        skip,
+        badSearch: false,
+      } satisfies SearchResult);
+    }
     limit = Math.min(limit, 100);
     const time = performance.now();
+    let badSearch = false;
     let results: readonly SearchEntry[] = fuzzysort.go(q, drugs, {
       keys: [
         'proprietaryName',
@@ -50,15 +61,21 @@ router.get(
       ],
     });
     if (!results[0] || results[0].score < -1000) {
-      results = fuse.search(q).map(entry => {
-        entry.score! *= Math.pow(0.95, entry.item.pharmClasses.length);
-        return { obj: entry.item, score: entry.score! };
-      });
+      results = fuse
+        .search(q)
+        .map(entry => {
+          entry.score! *= Math.pow(0.95, entry.item.pharmClasses.length);
+          return { obj: entry.item, score: entry.score! };
+        })
+        .sort((a, b) => a.score - b.score);
+      badSearch = results.length === 0 || results[0].score > 0.5;
     } else {
-      results = results.map(entry => {
-        entry.score += entry.obj.pharmClasses.length;
-        return { obj: entry.obj, score: entry.score };
-      });
+      results = results
+        .map(entry => {
+          entry.score += entry.obj.pharmClasses.length;
+          return { obj: entry.obj, score: entry.score };
+        })
+        .sort((a, b) => b.score - a.score);
     }
     console.log(
       `Search for "${q}" took ${(performance.now() - time).toPrecision(4)}ms`
@@ -68,11 +85,12 @@ router.get(
       const { products: _, ...rest } = r.obj;
       return rest;
     });
-    res.status(200).json({
+    return res.status(200).json({
       total,
       items: sliced,
       limit,
       skip,
+      badSearch,
     } satisfies SearchResult);
   })
 );

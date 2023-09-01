@@ -1,9 +1,9 @@
 import { parse } from '@vanillaes/csv';
 import fs from 'fs/promises';
 import { FullDrugInfo, PharmClass, Substance } from '../../drug-types';
-import { isEmpty } from '../helper';
 import { lineStart } from 'readable-regexp';
 import Fuse from 'fuse.js';
+import isEmpty from 'lodash/isEmpty';
 
 const DATA_DIR = 'dist/fda-data/';
 
