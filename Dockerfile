@@ -33,6 +33,7 @@ RUN npm install
 
 # Build client and server
 RUN echo "VITE_SERVER_URL=$VITE_SERVER_URL" | cat > .env
+RUN cat .env
 RUN npm run build
 
 # Download food and drug dataset from Kaggle
