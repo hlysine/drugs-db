@@ -1,5 +1,3 @@
-ARG VITE_SERVER_URL='/'
-
 FROM node:18
 
 # Set up a new user named "user" with user ID 1000
@@ -32,6 +30,7 @@ COPY --chown=user . $HOME/app
 RUN npm install
 
 # Build client and server
+ARG VITE_SERVER_URL='/'
 RUN echo "VITE_SERVER_URL=$VITE_SERVER_URL" | cat > .env
 RUN cat .env
 RUN npm run build
