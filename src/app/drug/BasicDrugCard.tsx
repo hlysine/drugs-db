@@ -14,7 +14,7 @@ export interface BasicDrugCardProps {
 export default function BasicDrugCard({ drug, onClick }: BasicDrugCardProps) {
   return (
     <div
-      className={`relative card card-compact w-96 shadow-md rounded-md overflow-hidden hover:bg-neutral-focus transition-colors ${
+      className={`relative card card-compact w-96 max-w-full shadow-md rounded-md overflow-hidden hover:bg-neutral-focus transition-colors ${
         drug.drugFinished ? 'bg-neutral' : 'bg-base-100 cross-out'
       }`}
       onClick={onClick}

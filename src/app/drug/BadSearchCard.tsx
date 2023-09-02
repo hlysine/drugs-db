@@ -7,7 +7,7 @@ export interface BadSearchCardProps {
 
 export default function BadSearchCard({ query }: BadSearchCardProps) {
   return (
-    <div className="card card-compact w-96 shadow-md rounded-md overflow-hidden">
+    <div className="card card-compact w-96 max-w-full shadow-md rounded-md overflow-hidden">
       <div className="card-body">
         <h2 className="card-title">No good matches...</h2>
         <p>Do you want to search for "{query}" on Google?</p>

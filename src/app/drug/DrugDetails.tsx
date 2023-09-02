@@ -87,7 +87,7 @@ export default function DrugDetails(): JSX.Element {
     })();
   }, [params.id]);
   return (
-    <div className="p-8 flex flex-col gap-2 items-center">
+    <div className="flex flex-col gap-2 items-center p-3 md:p-8">
       <Helmet>
         <title>Drug Info - drugs-db</title>
       </Helmet>

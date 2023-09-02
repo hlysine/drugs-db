@@ -94,7 +94,7 @@ export default function DrugSearch(): JSX.Element {
   }, [query, limit, skip]);
 
   return (
-    <div className="p-8 flex flex-col gap-8 w-full items-center">
+    <div className="flex flex-col gap-8 w-full items-center p-3 md:p-8">
       <Helmet>
         <title>Drug Search - drugs-db</title>
       </Helmet>
@@ -125,8 +125,8 @@ export default function DrugSearch(): JSX.Element {
         }}
       />
       {results ? (
-        <div className="flex flex-col gap-4 items-center">
-          <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-4 items-center w-full">
+          <div className="flex flex-col gap-2 items-center w-full">
             <div className="text-sm">{results.total} results found</div>
             <div className="flex flex-wrap gap-4 w-full justify-center items-start">
               {results.badSearch ? (
