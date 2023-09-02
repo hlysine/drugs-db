@@ -26,6 +26,9 @@ WORKDIR $HOME/app
 # Copy the current directory contents into the container at $HOME/app setting the owner to the user
 COPY --chown=user . $HOME/app
 
+# Install pm2
+RUN npm install pm2 -g
+
 # Install npm dependencies
 RUN npm install
 
@@ -43,4 +46,5 @@ RUN --mount=type=secret,id=KAGGLE_USERNAME,mode=0444,required=true \
     kaggle datasets download -d maheshdadhich/us-healthcare-data --unzip -p $HOME/app/dist/fda-data
 
 EXPOSE 7860
-CMD [ "npm", "run", "start" ]
+# CMD [ "npm", "run", "start" ]
+CMD ["pm2-runtime", "processes.json"]
