@@ -14,6 +14,7 @@ export default function DrugSearch(): JSX.Element {
   const [results, setResults] = useState<SearchResult>();
   const [loading, setLoading] = useState(false);
   const requestId = useRef(0);
+  const searchBox = useRef<HTMLInputElement>(null);
 
   const search = useMemo(
     () =>
@@ -32,6 +33,10 @@ export default function DrugSearch(): JSX.Element {
       ),
     []
   );
+
+  useEffect(() => {
+    searchBox.current?.select();
+  }, []);
 
   useEffect(() => {
     if (searchParams.has('q') || results) {
@@ -67,6 +72,7 @@ export default function DrugSearch(): JSX.Element {
         </ul>
       </div>
       <input
+        ref={searchBox}
         type="text"
         value={query}
         autoFocus
