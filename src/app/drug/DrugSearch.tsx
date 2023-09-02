@@ -13,17 +13,36 @@ export default function DrugSearch(): JSX.Element {
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [results, setResults] = useState<SearchResult>();
   const [loading, setLoading] = useState(false);
-  const requestId = useRef(0);
+  const searchState = useRef({
+    timer: null as number | null,
+    requestId: 0,
+  });
   const searchBox = useRef<HTMLInputElement>(null);
 
   const search = useMemo(
     () =>
       debounce(
-        async (query: string, id: number) => {
+        async (query: string) => {
           setLoading(true);
+          searchState.current.requestId++;
+          if (searchState.current.timer)
+            window.clearTimeout(searchState.current.timer);
+          searchState.current.timer = window.setTimeout(
+            () =>
+              setResults(r => ({
+                ...(r ?? { total: 0, items: [], limit: 0, skip: 0 }),
+                badSearch: true,
+              })),
+            2000
+          );
+          const id = searchState.current.requestId;
           try {
             const result = await searchDrugs(query);
-            if (id === requestId.current) setResults(result);
+            if (id === searchState.current.requestId) {
+              setResults(result);
+              if (searchState.current.timer)
+                window.clearTimeout(searchState.current.timer);
+            }
           } finally {
             setLoading(false);
           }
@@ -40,8 +59,7 @@ export default function DrugSearch(): JSX.Element {
 
   useEffect(() => {
     if (searchParams.has('q') || results) {
-      requestId.current++;
-      search(searchParams.get('q') ?? '', requestId.current);
+      search(searchParams.get('q') ?? '');
     }
   }, [searchParams]);
 
