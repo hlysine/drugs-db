@@ -1,4 +1,5 @@
 import React from 'react';
+import { getSearchLink } from './api';
 
 export interface BadSearchCardProps {
   query: string;
@@ -14,7 +15,7 @@ export default function BadSearchCard({ query }: BadSearchCardProps) {
           <a
             className="btn btn-primary"
             target="_blank"
-            href={`https://google.com/search?q=${encodeURIComponent(query)}`}
+            href={getSearchLink(query)}
           >
             Search
           </a>

@@ -22,3 +22,7 @@ export async function getDrug(drugId: string): Promise<FullDrugInfo> {
   const response = await axios.get(`${SERVER_BASE_PATH}api/drug/${drugId}`);
   return response.data;
 }
+
+export function getSearchLink(query: string) {
+  return `https://google.com/search?q=${encodeURIComponent(query)}`;
+}

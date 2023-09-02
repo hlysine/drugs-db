@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { getDrug } from './api';
+import { getDrug, getSearchLink } from './api';
 import {
   BasicDrugInfo,
   FullDrugInfo,
@@ -112,13 +112,29 @@ export default function DrugDetails(): JSX.Element {
               drug.drugFinished ? '' : 'cross-out'
             }`}
           >
-            <h1 className="text-4xl lg:text-6xl">
+            <h1
+              className="text-4xl lg:text-6xl hover:scale-105 origin-left transition-transform cursor-pointer"
+              onClick={() =>
+                window.open(
+                  getSearchLink(drug.proprietaryName + ' drug'),
+                  '_blank'
+                )
+              }
+            >
               {drug.proprietaryName}{' '}
               <span className="opacity-60 text-3xl lg:text-5xl">
                 {drug.proprietaryNameSuffix}
               </span>
             </h1>
-            <div className="text-2xl text-accent">
+            <div
+              className="text-2xl text-accent hover:scale-105 origin-left transition-transform cursor-pointer"
+              onClick={() =>
+                window.open(
+                  getSearchLink(drug.proprietaryName + ' drug'),
+                  '_blank'
+                )
+              }
+            >
               {drug.nonProprietaryNames.join(', ')}
             </div>
             <div className="first-letter:uppercase lowercase">
@@ -136,8 +152,11 @@ export default function DrugDetails(): JSX.Element {
               )
               .map(pharmClass => (
                 <div
-                  className="flex flex-wrap flex-col sm:flex-row gap-2 md:items-center"
+                  className="flex flex-wrap flex-col sm:flex-row gap-2 md:items-center hover:scale-105 origin-left transition-transform cursor-pointer"
                   key={pharmClass.className + pharmClass.classType}
+                  onClick={() =>
+                    window.open(getSearchLink(pharmClass.className), '_blank')
+                  }
                 >
                   <div
                     className={`badge ${getBadgeByType(pharmClass.classType)}`}
@@ -178,7 +197,17 @@ export default function DrugDetails(): JSX.Element {
                         key={substance.substanceName}
                         className="flex flex-wrap gap-2 items-center border-b-2 border-neutral-focus mb-1 w-full max-w-3xl"
                       >
-                        <span className="flex-1">
+                        <span
+                          className="flex-1 hover:scale-105 origin-left transition-transform cursor-pointer"
+                          onClick={() => {
+                            if (substance.substanceName) {
+                              window.open(
+                                getSearchLink(substance.substanceName),
+                                '_blank'
+                              );
+                            }
+                          }}
+                        >
                           {substance.substanceName}
                         </span>
                         <span className="font-bold text-lg">
