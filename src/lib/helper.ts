@@ -56,3 +56,11 @@ export function wrap(
     }
   };
 }
+
+export function log(...args: unknown[]) {
+  console.log(`[${process.env.pm_id ?? ''}]`, ...args);
+}
+
+export function warn(...args: unknown[]) {
+  console.warn(`[${process.env.pm_id ?? ''}]`, ...args);
+}

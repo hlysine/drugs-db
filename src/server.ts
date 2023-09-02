@@ -7,6 +7,7 @@ import { isBoom } from '@hapi/boom';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import compression from 'compression';
+import { log } from './lib/helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,10 +48,10 @@ app.get('*', (_req, res) => {
 Promise.all([
   (async () => {
     await readDrugs();
-    console.log(`Drug: ${drugs.length} drugs loaded`);
+    log(`Drug: ${drugs.length} drugs loaded`);
   })(),
 ]).then(() => {
   app.listen(PORT, () => {
-    console.log(`Server listening at http://localhost:${PORT}`);
+    log(`Server listening at http://localhost:${PORT}`);
   });
 });

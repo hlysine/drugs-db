@@ -4,6 +4,7 @@ import { FullDrugInfo, PharmClass, Substance } from '../../drug-types';
 import { lineStart } from 'readable-regexp';
 import Fuse from 'fuse.js';
 import isEmpty from 'lodash/isEmpty';
+import { log, warn } from '../helper';
 
 const DATA_DIR = 'dist/fda-data/';
 
@@ -129,7 +130,7 @@ function rowToDrug(
 function rowToPackage(cache: Map<string, FullDrugInfo>, row: string[]) {
   const [productId, _, ndcPackageCode, packageDescription] = row;
   if (!cache.has(productId)) {
-    console.warn(`Drug not found for product ID ${productId}`);
+    warn(`Drug not found for product ID ${productId}`);
     return;
   }
   cache.get(productId)!.products[0].packages.push({
@@ -139,7 +140,7 @@ function rowToPackage(cache: Map<string, FullDrugInfo>, row: string[]) {
 }
 
 export async function readDrugs(): Promise<void> {
-  console.log('Drug: Reading approved drugs');
+  log('Drug: Reading approved drugs');
 
   const drugCache = new Map<string, FullDrugInfo>();
 
@@ -152,7 +153,7 @@ export async function readDrugs(): Promise<void> {
 
   drugs = parsed.map(row => rowToDrug(drugCache, row, true));
 
-  console.log('Drug: Reading unapproved drugs');
+  log('Drug: Reading unapproved drugs');
 
   const unapprovedData = await fs.readFile(
     DATA_DIR + 'Drugs_unfinished_products.csv',
@@ -166,7 +167,7 @@ export async function readDrugs(): Promise<void> {
 
   drugs.push(...unapprovedParsed.map(row => rowToDrug(drugCache, row, false)));
 
-  console.log('Drug: Populating approved drug packaages');
+  log('Drug: Populating approved drug packaages');
 
   const packagesData = await fs.readFile(DATA_DIR + 'Drugs_package.csv', {
     encoding: 'utf8',
@@ -177,7 +178,7 @@ export async function readDrugs(): Promise<void> {
 
   packagesParsed.forEach(row => rowToPackage(drugCache, row));
 
-  console.log('Drug: Populating unapproved drug packaages');
+  log('Drug: Populating unapproved drug packaages');
 
   const unapprovedPackagesData = await fs.readFile(
     DATA_DIR + 'Drugs_unfinished_package.csv',
@@ -191,7 +192,7 @@ export async function readDrugs(): Promise<void> {
 
   unapprovedPackagesParsed.forEach(row => rowToPackage(drugCache, row));
 
-  console.log('Drug: Merge identical drugs with different formulae');
+  log('Drug: Merge identical drugs with different formulae');
 
   const mergedDrugs = new Map<string, FullDrugInfo>();
   drugs.forEach(drug => {
@@ -205,7 +206,7 @@ export async function readDrugs(): Promise<void> {
 
   drugs = Array.from(mergedDrugs.values());
 
-  console.log('Drug: Done');
+  log('Drug: Done');
 
   const options = {
     isCaseSensitive: false,

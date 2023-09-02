@@ -1,6 +1,6 @@
 import express from 'express';
 import { z } from 'zod';
-import { validate, wrap } from '../helper';
+import { log, validate, wrap } from '../helper';
 import { badRequest } from '@hapi/boom';
 import { drugs, fuse } from './data';
 import { FullDrugInfo, SearchResult } from '../../drug-types';
@@ -77,7 +77,7 @@ router.get(
         })
         .sort((a, b) => b.score - a.score);
     }
-    console.log(
+    log(
       `Search for "${q}" took ${(performance.now() - time).toPrecision(4)}ms`
     );
     const total = results.length;
