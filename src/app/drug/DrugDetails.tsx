@@ -138,7 +138,7 @@ export default function DrugDetails(): JSX.Element {
               {drug.nonProprietaryNames.join(', ')}
             </div>
             <div className="first-letter:uppercase lowercase">
-              <span className="text-accent-content">
+              <span className="text-accent font-bold">
                 {drug.routes.join('/')}{' '}
               </span>
               {drug.dosageForms.join(', ')}
