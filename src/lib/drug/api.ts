@@ -7,6 +7,8 @@ import { FullDrugInfo, SearchResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
 import isEmpty from 'lodash/isEmpty';
 
+const MAX_QUERY_LENGTH = 30;
+
 interface SearchEntry {
   obj: FullDrugInfo;
   score: number;
@@ -51,18 +53,22 @@ router.get(
     limit = Math.min(limit, 100);
     const time = performance.now();
     let badSearch = false;
-    let results: readonly SearchEntry[] = fuzzysort.go(q, drugs, {
-      keys: [
-        'proprietaryName',
-        'proprietaryNameSuffix',
-        'nonProprietaryNames',
-        'pharmClasses.className',
-        'formulae.substances.substanceName',
-      ],
-    });
+    let results: readonly SearchEntry[] = fuzzysort.go(
+      q.slice(0, MAX_QUERY_LENGTH),
+      drugs,
+      {
+        keys: [
+          'proprietaryName',
+          'proprietaryNameSuffix',
+          'nonProprietaryNames',
+          'pharmClasses.className',
+          'formulae.substances.substanceName',
+        ],
+      }
+    );
     if (!results[0] || results[0].score < -1000) {
       results = fuse
-        .search(q)
+        .search(q.slice(0, MAX_QUERY_LENGTH))
         .map(entry => {
           entry.score! *= Math.pow(0.95, entry.item.pharmClasses.length);
           return { obj: entry.item, score: entry.score! };
