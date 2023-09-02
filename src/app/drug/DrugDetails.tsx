@@ -156,7 +156,7 @@ export default function DrugDetails(): JSX.Element {
                 className="card bg-neutral text-neutral-content rounded-md overflow-hidden"
               >
                 <div className="flex flex-col">
-                  <div className="flex items-center p-4">
+                  <div className="flex items-center flex-wrap gap-4 p-4">
                     <span className="flex-1 opacity-60">
                       {new Date(
                         product.startMarketingDate
