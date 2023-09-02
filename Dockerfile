@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
 # Install kaggle silently
 RUN yes | pip3 install kaggle --exists-action i --break-system-packages
 
+# Install pm2
+RUN npm install pm2 -g
+
 # Switch to the "user" user
 USER user
 
@@ -25,9 +28,6 @@ WORKDIR $HOME/app
 
 # Copy the current directory contents into the container at $HOME/app setting the owner to the user
 COPY --chown=user . $HOME/app
-
-# Install pm2
-RUN npm install pm2 -g
 
 # Install npm dependencies
 RUN npm install
