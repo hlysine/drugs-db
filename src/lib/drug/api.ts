@@ -68,7 +68,7 @@ router.get(
           return { obj: entry.item, score: entry.score! };
         })
         .sort((a, b) => a.score - b.score);
-      badSearch = results.length === 0 || results[0].score > 0.5;
+      badSearch = results.length === 0 || results[0].score > 0.3;
     } else {
       results = results
         .map(entry => {
