@@ -32,7 +32,7 @@ COPY --chown=user . $HOME/app
 RUN npm install
 
 # Build client and server
-RUN export VITE_SERVER_URL=$MODEL_REPO_NAME && npm run build
+RUN export VITE_SERVER_URL=$VITE_SERVER_URL && npm run build
 
 # Download food and drug dataset from Kaggle
 RUN --mount=type=secret,id=KAGGLE_USERNAME,mode=0444,required=true \
