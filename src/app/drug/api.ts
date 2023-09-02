@@ -8,7 +8,7 @@ export async function searchDrugs(
   limit = 20,
   skip = 0
 ): Promise<SearchResult> {
-  console.log(`Requesting to ${SERVER_BASE_PATH}api/drug/${drugId}`);
+  console.log(`Requesting to ${SERVER_BASE_PATH}api/drug/search`);
   const response = await axios.get(`${SERVER_BASE_PATH}api/drug/search`, {
     params: {
       q: query,
