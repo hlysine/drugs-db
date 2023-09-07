@@ -115,10 +115,8 @@ export default function DrugDetails(): JSX.Element {
             <h1
               className="text-4xl lg:text-6xl hover:scale-105 origin-left transition-transform cursor-pointer"
               onClick={() =>
-                window.open(
-                  getSearchLink(drug.proprietaryName + ' drug'),
-                  '_blank'
-                )
+                drug.proprietaryName &&
+                window.open(getSearchLink(drug.proprietaryName), '_blank')
               }
             >
               {drug.proprietaryName}{' '}
@@ -130,7 +128,7 @@ export default function DrugDetails(): JSX.Element {
               className="text-2xl text-accent hover:scale-105 origin-left transition-transform cursor-pointer"
               onClick={() =>
                 window.open(
-                  getSearchLink(drug.proprietaryName + ' drug'),
+                  getSearchLink(drug.nonProprietaryNames.join(', ')),
                   '_blank'
                 )
               }
