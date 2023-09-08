@@ -57,8 +57,17 @@ export default function DrugSearch(): JSX.Element {
 
   useEffect(() => {
     (async () => {
-      // discard short classes to avoid false positives
-      setPharmClasses((await getPharmClasses()).filter(c => c.length >= 5));
+      setPharmClasses(
+        (await getPharmClasses())
+          // discard short classes to avoid false positives
+          .filter(c => c.length >= 5)
+          // split long words into separate classes because these long words are likely specific
+          .flatMap(c =>
+            c.includes(' ')
+              ? [c, ...c.split(' ').filter(s => s.length > 20)]
+              : [c]
+          )
+      );
     })();
   }, []);
 
