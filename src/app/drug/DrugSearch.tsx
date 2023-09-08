@@ -1,12 +1,38 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  PropsWithChildren,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { SearchResult, WikiPage } from '../../drug-types';
 import debounce from 'lodash/debounce';
-import { getSearchLink, searchDrugs, searchWiki } from './api';
+import { getPharmClasses, getSearchLink, searchDrugs, searchWiki } from './api';
 import BasicDrugCard from './BasicDrugCard';
 import BadSearchCard from './BadSearchCard';
 import isEmpty from 'lodash/isEmpty';
+import Highlighter from 'react-highlight-words';
+import search from 'approx-string-match';
+
+const textHighlighter = (text: string, words: string[]) => {
+  text = text.toLowerCase();
+  return words.flatMap(word =>
+    search(
+      text,
+      word.toLowerCase(),
+      Math.max(1, Math.floor(word.length / 10))
+    ).map(mark => ({
+      start: text[mark.start] === ' ' ? mark.start + 1 : mark.start,
+      end: text[mark.end - 1] === ' ' ? mark.end - 1 : mark.end,
+    }))
+  );
+};
+
+const Highlighted = ({ children }: PropsWithChildren) => (
+  <span className="underline underline-offset-2 font-semibold">{children}</span>
+);
 
 export default function DrugSearch(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,6 +53,14 @@ export default function DrugSearch(): JSX.Element {
     wikiId: 0,
   });
   const searchBox = useRef<HTMLInputElement>(null);
+  const [pharmClasses, setPharmClasses] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      // discard short classes to avoid false positives
+      setPharmClasses((await getPharmClasses()).filter(c => c.length >= 5));
+    })();
+  }, []);
 
   const search = async (query: string, limit: number, skip: number) => {
     setLoading(true);
@@ -115,6 +149,12 @@ export default function DrugSearch(): JSX.Element {
     setParams(query, limit, skip);
   }, [query, limit, skip]);
 
+  const highlights = useMemo(() => {
+    const text = wiki?.extract ?? '';
+    if (isEmpty(text)) return [];
+    return textHighlighter(text, pharmClasses);
+  }, [wiki?.extract, pharmClasses]);
+
   return (
     <div className="flex flex-col gap-8 w-full items-center p-3 md:p-8">
       <Helmet>
@@ -171,7 +211,12 @@ export default function DrugSearch(): JSX.Element {
             className="peer"
           />
           <div className="collapse-title min-h-16 bg-transparent text-base-content border-0 opacity-70 h-10 text-ellipsis overflow-hidden peer-checked:border-y peer-checked:opacity-100 peer-checked:h-max transition-all">
-            {wiki?.extract}
+            <Highlighter
+              searchWords={pharmClasses}
+              textToHighlight={wiki?.extract ?? ''}
+              findChunks={() => highlights}
+              highlightTag={Highlighted}
+            />
           </div>
         </div>
       ) : null}

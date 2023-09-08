@@ -35,3 +35,8 @@ export async function searchWiki(query: string): Promise<WikiPage | null> {
   });
   return response.data;
 }
+
+export async function getPharmClasses(): Promise<string[]> {
+  const response = await axios.get(`${SERVER_BASE_PATH}api/drug/classes`);
+  return response.data;
+}

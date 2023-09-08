@@ -9,6 +9,7 @@ import { log, warn } from '../helper';
 const DATA_DIR = 'dist/fda-data/';
 
 export let drugs: FullDrugInfo[] = [];
+export let pharmClasses: string[] = [];
 export let fuse: Fuse<FullDrugInfo>;
 
 /**
@@ -206,7 +207,7 @@ export async function readDrugs(): Promise<void> {
 
   drugs = Array.from(mergedDrugs.values());
 
-  log('Drug: Done');
+  log('Drug: Indexing drugs for search');
 
   const options = {
     isCaseSensitive: false,
@@ -226,4 +227,23 @@ export async function readDrugs(): Promise<void> {
   };
   const index = Fuse.createIndex(options.keys, drugs);
   fuse = new Fuse(drugs, options, index);
+
+  log('Drug: Collecting drug classes');
+
+  const caseInsensitive = new Set<string>();
+  const classSet = new Set<string>();
+
+  drugs.forEach(drug => {
+    drug.pharmClasses.forEach(c => {
+      const key = c.className.trim();
+      if (!caseInsensitive.has(key.toLowerCase())) {
+        classSet.add(key);
+        caseInsensitive.add(key.toLowerCase());
+      }
+    });
+  });
+
+  pharmClasses = [...classSet].sort().sort((a, b) => a.length - b.length);
+
+  log(`Drug: Done, ${drugs.length} drugs and ${pharmClasses.length} classes`);
 }

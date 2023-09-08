@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { log, minBy, validate, wrap } from '../helper';
 import { badRequest } from '@hapi/boom';
-import { drugs, fuse } from './data';
+import { drugs, fuse, pharmClasses } from './data';
 import { FullDrugInfo, SearchResult, WikiResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
 import isEmpty from 'lodash/isEmpty';
@@ -136,6 +136,13 @@ router.get(
     res
       .status(200)
       .json(minBy(Object.values(result.data.query?.pages ?? []), p => p.index));
+  })
+);
+
+router.get(
+  '/classes',
+  wrap(async (_req, res) => {
+    res.status(200).json([...pharmClasses]);
   })
 );
 
