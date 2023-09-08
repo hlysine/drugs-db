@@ -51,7 +51,7 @@ export default function DrugSearch(): JSX.Element {
               const wikiResult = await searchWiki(
                 result.items[0].proprietaryName!
               );
-              if (wikiId === searchState.current.wikiId) {
+              if (wikiId === searchState.current.wikiId && wikiResult) {
                 setWiki(wikiResult);
               }
             }
