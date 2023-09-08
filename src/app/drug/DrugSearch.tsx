@@ -67,6 +67,8 @@ export default function DrugSearch(): JSX.Element {
               ? [c, ...c.split(' ').filter(s => s.length > 20)]
               : [c]
           )
+          // require standalone words for short classes
+          .flatMap(c => (c.length <= 6 ? [` ${c} `, ` ${c},`, ` ${c}.`] : [c]))
       );
     })();
   }, []);
