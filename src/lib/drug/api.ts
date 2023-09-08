@@ -1,11 +1,12 @@
 import express from 'express';
 import { z } from 'zod';
-import { log, validate, wrap } from '../helper';
+import { log, minBy, validate, wrap } from '../helper';
 import { badRequest } from '@hapi/boom';
 import { drugs, fuse } from './data';
-import { FullDrugInfo, SearchResult } from '../../drug-types';
+import { FullDrugInfo, SearchResult, WikiResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
 import isEmpty from 'lodash/isEmpty';
+import axios from 'axios';
 
 const MAX_QUERY_LENGTH = 30;
 
@@ -98,6 +99,43 @@ router.get(
       skip,
       badSearch,
     } satisfies SearchResult);
+  })
+);
+
+router.get(
+  '/wiki',
+  wrap(async (req, res) => {
+    const {
+      query: { q },
+    } = await validate(
+      req,
+      z.object({
+        query: z
+          .object({
+            q: z.string(),
+          })
+          .strict(),
+      })
+    );
+    const result = await axios.get<WikiResult>(
+      'https://en.wikipedia.org/w/api.php',
+      {
+        params: {
+          action: 'query',
+          generator: 'prefixsearch',
+          gpssearch: q,
+          prop: 'extracts',
+          exintro: 1,
+          explaintext: 1,
+          redirects: 1,
+          format: 'json',
+          psprofile: 'fuzzy-subphrases',
+        },
+      }
+    );
+    res
+      .status(200)
+      .json(minBy(Object.values(result.data.query?.pages ?? []), p => p.index));
   })
 );
 

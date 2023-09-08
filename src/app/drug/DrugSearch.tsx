@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { SearchResult } from '../../drug-types';
+import { SearchResult, WikiPage } from '../../drug-types';
 import debounce from 'lodash/debounce';
-import { getSearchLink, searchDrugs } from './api';
+import { getSearchLink, searchDrugs, searchWiki } from './api';
 import BasicDrugCard from './BasicDrugCard';
 import BadSearchCard from './BadSearchCard';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 
 export default function DrugSearch(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,23 +19,57 @@ export default function DrugSearch(): JSX.Element {
     parseInt(searchParams.get('skip') ?? '0', 10)
   );
   const [results, setResults] = useState<SearchResult>();
+  const [wiki, setWiki] = useState<WikiPage | null>();
+  const [showWiki, setShowWiki] = useState(false);
   const [loading, setLoading] = useState(false);
   const searchState = useRef({
     requestId: 0,
+    wikiId: 0,
   });
   const searchBox = useRef<HTMLInputElement>(null);
 
   const search = async (query: string, limit: number, skip: number) => {
     setLoading(true);
+    setShowWiki(false);
     searchState.current.requestId++;
+    searchState.current.wikiId++;
     const id = searchState.current.requestId;
+    const wikiId = searchState.current.wikiId;
+    let result: SearchResult | undefined = undefined;
     try {
-      const result = await searchDrugs(query, limit, skip);
-      if (id === searchState.current.requestId) {
-        setResults(result);
-      }
+      await Promise.all([
+        (async () => {
+          result = await searchDrugs(query, limit, skip);
+          if (id === searchState.current.requestId) {
+            setResults(result);
+            if (
+              result.items.length > 0 &&
+              !isEmpty(result.items[0].proprietaryName)
+            ) {
+              searchState.current.wikiId++;
+              const wikiId = searchState.current.wikiId;
+              const wikiResult = await searchWiki(
+                result.items[0].proprietaryName!
+              );
+              if (wikiId === searchState.current.wikiId) {
+                setWiki(wikiResult);
+              }
+            }
+          }
+        })(),
+        (async () => {
+          const wikiResult = await searchWiki(query);
+          if (wikiId === searchState.current.wikiId) {
+            setWiki(wikiResult);
+          }
+        })(),
+      ]);
     } finally {
       setLoading(false);
+      const finalResult = result as any as SearchResult;
+      if (finalResult.badSearch || finalResult.total === 0) {
+        setShowWiki(true);
+      }
     }
   };
 
@@ -128,6 +162,19 @@ export default function DrugSearch(): JSX.Element {
           </svg>
         </button>
       </div>
+      {loading || results ? (
+        <div className="collapse collapse-arrow bg-transparent">
+          <input
+            type="checkbox"
+            checked={showWiki}
+            onChange={e => setShowWiki(e.target.checked)}
+            className="peer"
+          />
+          <div className="collapse-title min-h-16 bg-transparent text-base-content border-0 opacity-70 h-10 text-ellipsis overflow-hidden peer-checked:border-y peer-checked:opacity-100 peer-checked:h-max transition-all">
+            {wiki?.extract}
+          </div>
+        </div>
+      ) : null}
       {results ? (
         <div className="flex flex-col gap-4 items-center w-full">
           <div className="flex flex-col gap-2 items-center w-full">

@@ -199,3 +199,34 @@ export interface SearchResult {
   badSearch: boolean;
   items: BasicDrugInfo[];
 }
+
+export interface WikiResult {
+  batchcomplete: string;
+  continue: WikiContinue;
+  query: WikiQuery;
+}
+
+export interface WikiContinue {
+  gpsoffset: number;
+  continue: string;
+}
+
+export interface WikiQuery {
+  redirects: WikiRedirect[];
+  pages: { [key: string]: WikiPage };
+}
+
+export interface WikiPage {
+  pageid: number;
+  ns: number;
+  title: string;
+  index: number;
+  extract: string;
+}
+
+export interface WikiRedirect {
+  index: number;
+  from: string;
+  to: string;
+  tofragment?: string;
+}
