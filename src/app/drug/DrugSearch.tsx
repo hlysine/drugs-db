@@ -111,7 +111,7 @@ export default function DrugSearch(): JSX.Element {
                   })),
                 'error'
               );
-              if (choice) {
+              if (choice && choice.error < choice.term.length / 2) {
                 searchState.current.wikiId++;
                 const wikiId = searchState.current.wikiId;
                 const wikiResult = await searchWiki(choice.term);
