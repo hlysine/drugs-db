@@ -14,12 +14,13 @@ import BasicDrugCard from './BasicDrugCard';
 import BadSearchCard from './BadSearchCard';
 import isEmpty from 'lodash/isEmpty';
 import Highlighter from 'react-highlight-words';
-import search from 'approx-string-match';
+import approxSearch from 'approx-string-match';
+import minBy from 'lodash/minBy';
 
 const textHighlighter = (text: string, words: string[]) => {
   text = text.toLowerCase();
   return words.flatMap(word =>
-    search(
+    approxSearch(
       text,
       word.toLowerCase(),
       Math.max(1, Math.floor(word.length / 10))
@@ -87,18 +88,36 @@ export default function DrugSearch(): JSX.Element {
           result = await searchDrugs(query, limit, skip);
           if (id === searchState.current.requestId) {
             setResults(result);
-            if (
-              result.items.length > 0 &&
-              !isEmpty(result.items[0].proprietaryName) &&
-              !result.badSearch
-            ) {
-              searchState.current.wikiId++;
-              const wikiId = searchState.current.wikiId;
-              const wikiResult = await searchWiki(
-                result.items[0].proprietaryName!
+            if (result.items.length > 0 && !result.badSearch) {
+              // Pick a term to be searched in wiki that matches the search query the best
+              const choice = minBy(
+                [
+                  result.items[0]?.proprietaryName,
+                  result.items[0]?.nonProprietaryNames.join(', '),
+                  ...(result.items[0]?.pharmClasses.map(c => c.className) ??
+                    []),
+                ]
+                  .filter(s => !isEmpty(s))
+                  .map(s => ({
+                    term: s!,
+                    error: approxSearch(
+                      s!.toLowerCase(),
+                      query.toLowerCase(),
+                      Math.max(1, Math.floor(query.length / 10))
+                    ).reduce(
+                      (min, curr) => Math.min(min, curr.errors),
+                      Number.POSITIVE_INFINITY
+                    ),
+                  })),
+                'error'
               );
-              if (wikiId === searchState.current.wikiId && wikiResult) {
-                setWiki(wikiResult);
+              if (choice) {
+                searchState.current.wikiId++;
+                const wikiId = searchState.current.wikiId;
+                const wikiResult = await searchWiki(choice.term);
+                if (wikiId === searchState.current.wikiId && wikiResult) {
+                  setWiki(wikiResult);
+                }
               }
             }
           }
