@@ -118,11 +118,11 @@ export interface FullDrugInfo extends BasicDrugInfo {
 export function nameMarketingCategory(category: string) {
   switch (category) {
     case 'ANADA':
-      return 'Approved Abbreviated Animal Drug';
+      return 'Approved Generic Animal Drug';
     case 'ANDA':
-      return 'Approved Abbreviated Drug';
+      return 'Approved Generic Drug';
     case 'BLA':
-      return 'Approved Biologic License';
+      return 'Approved Biologic Product';
     case 'BULK INGREDIENT':
       return 'Bulk Ingredient';
     case 'CONDITIONAL NADA':
