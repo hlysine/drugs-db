@@ -1,11 +1,12 @@
 import express from 'express';
 import { z } from 'zod';
-import { log, minBy, validate, wrap } from '../helper';
+import { log, validate, wrap } from '../helper';
 import { badRequest } from '@hapi/boom';
 import { drugs, fuse, pharmClasses } from './data';
 import { FullDrugInfo, SearchResult, WikiResult } from '../../drug-types';
 import fuzzysort from 'fuzzysort';
 import isEmpty from 'lodash/isEmpty';
+import minBy from 'lodash/minBy';
 import axios from 'axios';
 
 const MAX_QUERY_LENGTH = 30;

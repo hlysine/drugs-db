@@ -64,32 +64,3 @@ export function log(...args: unknown[]) {
 export function warn(...args: unknown[]) {
   console.warn(`[${process.env.pm_id ?? ''}]`, ...args);
 }
-
-export type Mapper<T> = (t: T) => number;
-
-export function minBy<T>(arr: T[], fn: Mapper<T>) {
-  return extremumBy(arr, fn, Math.min);
-}
-
-export function maxBy<T>(arr: T[], fn: Mapper<T>) {
-  return extremumBy(arr, fn, Math.max);
-}
-
-function extremumBy<T>(
-  arr: T[],
-  pluck: Mapper<T>,
-  extremum: (a: number, b: number) => number
-): T | null {
-  return (
-    arr.reduce<[number, T] | null>((best, next) => {
-      const pair: [number, T] = [pluck(next), next];
-      if (!best) {
-        return pair;
-      } else if (extremum.apply(null, [best[0], pair[0]]) == best[0]) {
-        return best;
-      } else {
-        return pair;
-      }
-    }, null)?.[1] ?? null
-  );
-}
