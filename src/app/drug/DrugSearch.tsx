@@ -89,7 +89,8 @@ export default function DrugSearch(): JSX.Element {
             setResults(result);
             if (
               result.items.length > 0 &&
-              !isEmpty(result.items[0].proprietaryName)
+              !isEmpty(result.items[0].proprietaryName) &&
+              !result.badSearch
             ) {
               searchState.current.wikiId++;
               const wikiId = searchState.current.wikiId;
