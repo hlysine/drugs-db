@@ -27,6 +27,10 @@ export function getSearchLink(query: string) {
   return `https://google.com/search?q=${encodeURIComponent(query)}`;
 }
 
+export function getWikiLink(query: string) {
+  return `https://en.wikipedia.org/wiki/${encodeURIComponent(query)}`;
+}
+
 export async function searchWiki(query: string): Promise<WikiPage | null> {
   const response = await axios.get(`${SERVER_BASE_PATH}api/drug/wiki`, {
     params: {
